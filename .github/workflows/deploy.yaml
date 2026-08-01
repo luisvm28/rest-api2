@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout code 
-        uses: actionS/action@v3
+        uses: actions/checkout@v4  # <-- CORRECCIÓN 1: Nombre correcto de la acción
 
       - name: login to dockerhub
         uses: docker/login-action@v3
@@ -24,25 +24,23 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build + Push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5  # <-- Actualizado a v5 (recomendado)
         with:
+          context: .  # <-- CORRECCIÓN 3: Indica que el Dockerfile está en la raíz
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest  # <-- CORRECCIÓN 2: Nombre de variable correcto
           build-args: |
             APP_ENV=${{ secrets.APP_ENV }}
-
-
 
   test:
     name: Run tests
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run test
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-
       - run: npm install
       - run: npm run test
